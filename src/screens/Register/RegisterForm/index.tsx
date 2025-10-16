@@ -86,7 +86,7 @@ export const RegisterForm = () => {
 
       <View className="flex-1 justify-between mt-8 mb-6 min-h-[250px]">
         <AppButton onPress={handleSubmit(onSubmit)} iconName="arrow-forward">
-          {!isSubmitting ? (
+          {isSubmitting ? (
             <ActivityIndicator color={colors.white} />
           ) : (
             'Cadastrar'
