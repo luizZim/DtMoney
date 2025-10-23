@@ -3,52 +3,19 @@ import { TransactionTypes } from "@/shared/enums/transactions-types"
 import { FC } from "react";
 import { View, Text } from "react-native"
 import { MaterialIcons } from '@expo/vector-icons';
+import { useTransactionContext } from "@/context/transaction.context";
+import { format } from "date-fns";
+import { ptBR } from "date-fns/locale";
+import { ICONS } from "./strategies/icon-strategy";
+import { CARD_DATA } from "./strategies/card-data-strategy";
+import { MoneyMapper } from "@/shared/utils/money-mapper";
+import clsx from "clsx";
 
-type TransactionCardTypes = TransactionTypes | "total";
+export type TransactionCardTypes = TransactionTypes | "total";
 
 interface Props {
   type: TransactionCardTypes
   amount: number;
-}
-
-interface IconsData {
-  name: keyof typeof MaterialIcons.glyphMap;
-  color: string;
-}
-
-const ICONS: Record<TransactionCardTypes, IconsData> = {
-  [TransactionTypes.REVENUE]: {
-    color: colors["accent-brand-light"],
-    name: "arrow-circle-up"
-  },
-  [TransactionTypes.EXPENSE]: {
-    color: colors["accent-red"],
-    name: "arrow-circle-down"
-  },
-  total: {
-    name: "attach-money",
-    color: colors.white
-  }
-}
-
-interface CardData {
-  label: string;
-  bgColor: string;
-}
-
-const CARD_DATA: Record<TransactionCardTypes, CardData> = {
-  [TransactionTypes.EXPENSE]: {
-    label: "Saída",
-    bgColor: "background-tertiary"
-  },
-  [TransactionTypes.REVENUE]: {
-    label: "Entrada",
-    bgColor: "background-tertiary"
-  },
-  total: {
-    label: "Total",
-    bgColor: "accent-brand-background-primary"
-  }
 }
 
 export const TransactionCard: FC<Props> = ({ type, amount }) => {
@@ -56,9 +23,13 @@ export const TransactionCard: FC<Props> = ({ type, amount }) => {
   const iconData = ICONS[type]
   const cardData = CARD_DATA[type]
 
+  const { transactions } = useTransactionContext();
+
+  const lastTransaction = transactions.find(({ type: transactionType }) => transactionType.id === type)
+
   return (
-    <View className={`bg-${cardData.bgColor} min-w-[280] rounded-[6] px-8 py-6 justify-between mr-6`}>
-      <View className="flex-row justify-between items-center mb-1">
+    <View className={clsx(`bg-${cardData.bgColor} min-w-[280] rounded-[6] px-8 py-6 justify-between mr-6`, type === "total" && "mr-12")}>
+      <View className="flex-row justify-between items-center">
         <Text className="text-white text-base">{cardData.label}</Text>
 
         <MaterialIcons
@@ -68,7 +39,17 @@ export const TransactionCard: FC<Props> = ({ type, amount }) => {
         />
       </View>
       <View>
-        <Text className="text-2xl text-gray-400 font-bold">R$ {amount.toFixed(2).replace(".", ",")}</Text>
+        <Text className="text-2xl text-gray-400 font-bold">R$ {MoneyMapper(amount)}</Text>
+
+        {type !== "total" && (
+          <Text className="text-gray-700">
+            {lastTransaction?.createdAt ?
+              format(lastTransaction?.createdAt,
+                `'Última ${cardData.label.toLowerCase()} em' d  'de' MMMM`,
+                { locale: ptBR }
+              ) : "Nenhuma Transação encontrada"}
+          </Text>
+        )}
       </View>
     </View>
   )

@@ -3,6 +3,8 @@ import { CreateTrasactionInterface } from "@/shared/interfaces/https/create-tran
 import { GetTransactionsParams, GetTransactionsResponse } from "@/shared/interfaces/https/get-transactions-request";
 import { TransactionCategory } from "@/shared/interfaces/https/transation-category-response";
 import qs from "qs"
+import { updateTransactionSchema } from './../../../../../dt-money-react-native-backend/src/infra/web/routes/schemas/transactions/update-transaction';
+import { UpdateTransactionInterface } from "@/shared/interfaces/https/update-transaction-request";
 
 export const getTransactionCategories = async (): Promise<TransactionCategory[]> => {
   const { data } = await dtMoneyApi.get<TransactionCategory[]>(
@@ -24,4 +26,13 @@ export const getTransactions = async (params: GetTransactionsParams): Promise<Ge
   });
 
   return data;
+}
+
+export const deleteTransaction = async (id: number) => {
+  await dtMoneyApi.delete(`/transaction/${id}`)
+}
+
+export const updateTransaction = async (transaction: UpdateTransactionInterface) => {
+  await dtMoneyApi.put('/transaction/', transaction)
+
 }
