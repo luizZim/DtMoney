@@ -1,5 +1,5 @@
 import { CreateTrasactionInterface } from "@/shared/interfaces/https/create-transaction-request";
-import { Pagination } from "@/shared/interfaces/https/get-transactions-request";
+import { Filters, Pagination } from "@/shared/interfaces/https/get-transactions-request";
 import { TransactionCategory } from "@/shared/interfaces/https/transation-category-response";
 import { UpdateTransactionInterface } from "@/shared/interfaces/https/update-transaction-request";
 import { TotalTransactions } from "@/shared/interfaces/total-transactions";
@@ -24,6 +24,11 @@ interface HandleLoadingsParams {
   value: boolean;
 }
 
+interface HandleFiltersParams {
+  key: keyof Filters;
+  value: Date | boolean | number;
+}
+
 export type TransactionContextType = {
   fetchCategories: () => Promise<void>;
   categories: TransactionCategory[];
@@ -39,6 +44,9 @@ export type TransactionContextType = {
   pagination: Pagination;
   setSearchText: (text: string) => void;
   searchText: string;
+  filters: Filters;
+  handleFilters: (params: HandleFiltersParams) => void;
+  handleCategoryFilter: (categoryId: number) => void;
 }
 
 export const TransactionContext = createContext({} as TransactionContextType);
@@ -47,6 +55,12 @@ export const TransactionContextProvider: FC<PropsWithChildren> = ({ children }) 
   const [categories, setCategories] = useState<TransactionCategory[]>([])
   const [transactions, setTransactions] = useState<Transaction[]>([])
   const [searchText, setSearchText] = useState("")
+  const [filters, setFilters] = useState<Filters>({
+    categoryIds: {},
+    typeId: undefined,
+    from: undefined,
+    to: undefined,
+  })
 
   const [loadings, setLoadings] = useState<Loadings>({
     initial: false,
@@ -131,6 +145,20 @@ export const TransactionContextProvider: FC<PropsWithChildren> = ({ children }) 
     fetchTransactions({ page: pagination.page + 1 })
   }, [loadings.loadMore, pagination])
 
+  const handleFilters = ({ key, value }: HandleFiltersParams) => {
+    setFilters((prev) => ({ ...prev, [key]: value }))
+  }
+
+  const handleCategoryFilter = (categoryId: number) => {
+    setFilters((prevValue) => ({
+      ...prevValue,
+      categoryIds: {
+        ...prevValue.categoryIds,
+        [categoryId]: !Boolean(prevValue.categoryIds[categoryId])
+      }
+    }))
+  }
+
   return (
     <TransactionContext.Provider
       value={{
@@ -147,7 +175,10 @@ export const TransactionContextProvider: FC<PropsWithChildren> = ({ children }) 
         loadMoreTransactions,
         pagination,
         setSearchText,
-        searchText
+        searchText,
+        filters,
+        handleFilters,
+        handleCategoryFilter
       }}
     >
       {children}
