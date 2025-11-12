@@ -15,7 +15,7 @@ export interface GetTransactionsParams {
   from?: Date
   to?: Date
   typeId?: number
-  categoryId?: number
+  categoryIds?: number[]
   searchText?: string
 }
 

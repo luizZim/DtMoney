@@ -1,6 +1,6 @@
 import { useTransactionContext } from "@/context/transaction.context"
 import Checkbox from "expo-checkbox"
-import { View, Text, Touchable, TouchableOpacity } from "react-native"
+import { View, Text, TouchableOpacity } from "react-native"
 
 
 export const CategoryFilter = () => {

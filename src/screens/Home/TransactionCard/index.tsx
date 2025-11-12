@@ -34,7 +34,7 @@ export const TransactionCard: FC<Params> = ({ transaction }) => {
     >
       <View className="h-[140] bg-background-tertiary rounded-[6] p-6">
         <Text className="text-white text-base ">{transaction.description}</Text>
-        <Text className={clsx("text-2xl font-bold mt-2",
+        <Text className={clsx("text-xl font-bold mt-2",
           isExpense ? "text-accent-red" : "text-accent-brand-light"
         )}
         >
